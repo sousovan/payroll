@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir=false --import-alias=\"@/*\" --yes)",
+      "Bash(npm install:*)",
+      "Bash(npx shadcn@latest init --defaults -y)",
+      "Bash(npx shadcn@latest add card input label select textarea badge table tabs dialog alert-dialog dropdown-menu avatar progress separator sheet toast calendar checkbox radio-group switch form --yes)",
+      "Bash(npx shadcn@latest add sonner popover command --yes)",
+      "Bash(npx shadcn@latest add card label select badge table tabs avatar progress separator sheet calendar checkbox radio-group switch alert-dialog dropdown-menu --yes)",
+      "Bash(ls /c/Users/USER/Desktop/payroll/app/api/auth/[...nextauth]/)",
+      "Bash(ls /c/Users/USER/Desktop/payroll/app/\\\\\\(dashboard\\\\\\)/)",
+      "Bash(ls /c/Users/USER/Desktop/payroll/app/\\\\\\(dashboard\\\\\\)/settings/)",
+      "Bash(ls /c/Users/USER/Desktop/payroll/app/api/departments/[id]/)",
+      "Bash(cat /c/Users/USER/Desktop/payroll/app/api/departments/[id]/route.ts)",
+      "Bash(npx ts-node:*)",
+      "Bash(node -e \"const p = require\\(''/c/Users/USER/Desktop/payroll/node_modules/@prisma/client''\\); console.log\\(Object.keys\\(p\\).slice\\(0,10\\)\\);\")",
+      "Bash(node -e \"const p = require\\(''@prisma/client''\\); console.log\\(Object.keys\\(p\\).slice\\(0,10\\)\\);\")",
+      "Bash(DATABASE_URL=\"file:./dev.db\" npx ts-node --compiler-options '{\"\"module\"\":\"\"CommonJS\"\"}' prisma/seed.ts)",
+      "Bash(node -e \"const p = require\\(''./node_modules/@prisma/client''\\); console.log\\(JSON.stringify\\(Object.keys\\(p\\)\\)\\);\")",
+      "Bash(node -e \":*)",
+      "Bash(node -e \"const p = require\\(''./node_modules/@prisma/client/package.json''\\); console.log\\(JSON.stringify\\({name:p.name,version:p.version,engineType:p.prisma?.engineType,main:p.main}\\)\\);\")",
+      "Bash(node -e \"const p = require\\(''./node_modules/.prisma/client''\\); console.log\\(Object.keys\\(p\\).slice\\(0,5\\)\\);\")",
+      "Bash(node -e \"const x = require\\(''@prisma/adapter-better-sqlite3''\\); console.log\\(Object.keys\\(x\\)\\);\")",
+      "Bash(node -e \"const b = require\\(''@prisma/adapter-better-sqlite3''\\); const db = require\\(''better-sqlite3''\\); const d = new db\\(''./prisma/dev.db''\\); const a = new b.PrismaBetterSqlite3\\(d\\); console.log\\(typeof a, Object.keys\\(a\\)\\);\")",
+      "Bash(node -e \"const lines = require\\(''fs''\\).readFileSync\\(''./node_modules/@prisma/adapter-better-sqlite3/dist/index.mjs'', ''utf8''\\).split\\(''\\\\n''\\); console.log\\(lines.slice\\(615, 630\\).join\\(''\\\\n''\\)\\);\")",
+      "Bash(node -e \"const src = require\\(''fs''\\).readFileSync\\(''./node_modules/@prisma/adapter-better-sqlite3/dist/index.mjs'', ''utf8''\\).split\\(''\\\\n''\\); console.log\\(src.slice\\(590, 630\\).join\\(''\\\\n''\\)\\);\")",
+      "Bash(npx tsc:*)",
+      "Bash(npm run:*)",
+      "Bash(taskkill /PID 11616 /F)",
+      "Bash(cmd.exe /c \"taskkill /PID 11616 /F\")",
+      "Bash(cmd.exe /c \"taskkill /PID 11616 /F && echo DONE || echo FAILED\")",
+      "Bash(cmd.exe /c \"taskkill /PID 11616 /F 2>&1\")",
+      "Bash(powershell.exe -Command \"Stop-Process -Id 11616 -Force -ErrorAction SilentlyContinue; Write-Output ''Done''\")",
+      "Bash(echo *.db)"
+    ]
+  }
+}

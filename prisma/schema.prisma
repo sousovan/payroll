@@ -1,0 +1,305 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ─── Company & Settings ───────────────────────────────────────────────────────
+
+model Company {
+  id               String   @id @default(cuid())
+  name             String
+  logo             String?
+  address          String?
+  phone            String?
+  email            String?
+  taxId            String?
+  currency         String   @default("THB")
+  timezone         String   @default("Asia/Bangkok")
+  workStartTime    String   @default("08:00")
+  workEndTime      String   @default("17:00")
+  workDays         String   @default("1,2,3,4,5")
+  lateGraceMinutes Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  departments Department[]
+  settings    Setting[]
+}
+
+model Setting {
+  id        String  @id @default(cuid())
+  companyId String
+  key       String
+  value     String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  @@unique([companyId, key])
+}
+
+// ─── Departments ─────────────────────────────────────────────────────────────
+
+model Department {
+  id            String  @id @default(cuid())
+  companyId     String
+  name          String
+  description   String?
+  bonusEnabled  Boolean @default(false)
+  bonusPercent  Float   @default(0)
+  overtimeRate  Float   @default(1.5)
+  company       Company @relation(fields: [companyId], references: [id])
+  createdAt     DateTime @default(now())
+
+  employees Employee[]
+}
+
+// ─── Employees ────────────────────────────────────────────────────────────────
+
+model Employee {
+  id                String    @id @default(cuid())
+  employeeCode      String    @unique
+  firstName         String
+  lastName          String
+  email             String    @unique
+  phone             String?
+  avatar            String?
+  departmentId      String?
+  position          String?
+  role              Role      @default(STAFF)
+  status            EmpStatus @default(ACTIVE)
+  joinDate          DateTime
+  baseSalary        Float
+  salaryType        SalaryType @default(MONTHLY)
+  workHoursPerMonth Float     @default(192)
+  maxDevices        Int       @default(1)
+  leaveDaysPerYear  Int       @default(12)
+  passwordHash      String
+  qrToken           String    @unique @default(cuid())
+  department        Department? @relation(fields: [departmentId], references: [id])
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  attendances     Attendance[]
+  leaves          Leave[]
+  payrolls        Payroll[]
+  deviceSessions  DeviceSession[]
+  shiftAssignments ShiftAssignment[]
+}
+
+enum Role {
+  ADMIN
+  HR
+  MANAGER
+  STAFF
+}
+
+enum EmpStatus {
+  ACTIVE
+  INACTIVE
+  TERMINATED
+}
+
+enum SalaryType {
+  MONTHLY
+  DAILY
+  HOURLY
+}
+
+// ─── Work Shifts ─────────────────────────────────────────────────────────────
+
+model Shift {
+  id           String   @id @default(cuid())
+  name         String
+  startTime    String
+  endTime      String
+  breakMinutes Int      @default(60)
+  workDays     String   @default("1,2,3,4,5")
+  createdAt    DateTime @default(now())
+
+  assignments ShiftAssignment[]
+}
+
+model ShiftAssignment {
+  id            String    @id @default(cuid())
+  employeeId    String
+  shiftId       String
+  effectiveFrom DateTime
+  effectiveTo   DateTime?
+  employee      Employee  @relation(fields: [employeeId], references: [id])
+  shift         Shift     @relation(fields: [shiftId], references: [id])
+}
+
+// ─── Attendance ───────────────────────────────────────────────────────────────
+
+model Attendance {
+  id                String       @id @default(cuid())
+  employeeId        String
+  date              DateTime
+  checkIn           DateTime?
+  checkOut          DateTime?
+  checkInMethod     CheckMethod  @default(MANUAL)
+  checkOutMethod    CheckMethod  @default(MANUAL)
+  checkInLat        Float?
+  checkInLng        Float?
+  checkOutLat       Float?
+  checkOutLng       Float?
+  checkInWifi       String?
+  checkOutWifi      String?
+  checkInDevice     String?
+  checkOutDevice    String?
+  status            AttendStatus @default(PRESENT)
+  lateMinutes       Int          @default(0)
+  earlyLeaveMinutes Int          @default(0)
+  overtimeMinutes   Int          @default(0)
+  totalMinutes      Int          @default(0)
+  note              String?
+  approvedBy        String?
+  employee          Employee     @relation(fields: [employeeId], references: [id])
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@unique([employeeId, date])
+}
+
+enum CheckMethod {
+  QR
+  GPS
+  WIFI
+  MANUAL
+}
+
+enum AttendStatus {
+  PRESENT
+  ABSENT
+  LATE
+  HALF_DAY
+  ON_LEAVE
+  HOLIDAY
+  OVERTIME
+}
+
+// ─── Leave Management ────────────────────────────────────────────────────────
+
+model LeaveType {
+  id              String   @id @default(cuid())
+  name            String
+  color           String   @default("#3b82f6")
+  maxDaysPerYear  Int      @default(12)
+  isPaid          Boolean  @default(true)
+  requireApproval Boolean  @default(true)
+  createdAt       DateTime @default(now())
+
+  leaves Leave[]
+}
+
+model Leave {
+  id             String      @id @default(cuid())
+  employeeId     String
+  leaveTypeId    String
+  startDate      DateTime
+  endDate        DateTime
+  totalDays      Float
+  reason         String?
+  status         LeaveStatus @default(PENDING)
+  approvedBy     String?
+  approvedAt     DateTime?
+  rejectedReason String?
+  employee       Employee    @relation(fields: [employeeId], references: [id])
+  leaveType      LeaveType   @relation(fields: [leaveTypeId], references: [id])
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+// ─── Payroll ─────────────────────────────────────────────────────────────────
+
+model Payroll {
+  id               String        @id @default(cuid())
+  employeeId       String
+  month            Int
+  year             Int
+  workingDays      Int           @default(0)
+  presentDays      Float         @default(0)
+  absentDays       Float         @default(0)
+  lateDays         Int           @default(0)
+  totalLateMinutes Int           @default(0)
+  overtimeMinutes  Int           @default(0)
+  leaveDaysUsed    Float         @default(0)
+  baseSalary       Float
+  overtimePay      Float         @default(0)
+  lateDeduction    Float         @default(0)
+  absentDeduction  Float         @default(0)
+  leaveDeduction   Float         @default(0)
+  bonusAmount      Float         @default(0)
+  departmentBonus  Float         @default(0)
+  otherBonus       Float         @default(0)
+  otherDeduction   Float         @default(0)
+  netSalary        Float
+  status           PayrollStatus @default(DRAFT)
+  paidAt           DateTime?
+  note             String?
+  employee         Employee      @relation(fields: [employeeId], references: [id])
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  items PayrollItem[]
+
+  @@unique([employeeId, month, year])
+}
+
+model PayrollItem {
+  id        String          @id @default(cuid())
+  payrollId String
+  type      PayrollItemType
+  label     String
+  amount    Float
+  payroll   Payroll         @relation(fields: [payrollId], references: [id])
+}
+
+enum PayrollItemType {
+  EARNING
+  DEDUCTION
+  BONUS
+}
+
+enum PayrollStatus {
+  DRAFT
+  APPROVED
+  PAID
+  CANCELLED
+}
+
+// ─── Device Sessions ─────────────────────────────────────────────────────────
+
+model DeviceSession {
+  id         String   @id @default(cuid())
+  employeeId String
+  deviceId   String
+  deviceName String?
+  userAgent  String?
+  ip         String?
+  lastSeen   DateTime @default(now())
+  isActive   Boolean  @default(true)
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  createdAt  DateTime @default(now())
+
+  @@unique([employeeId, deviceId])
+}
+
+// ─── Holidays ────────────────────────────────────────────────────────────────
+
+model Holiday {
+  id          String   @id @default(cuid())
+  name        String
+  date        DateTime
+  isRecurring Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
