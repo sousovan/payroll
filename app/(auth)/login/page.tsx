@@ -47,16 +47,27 @@ export default function LoginPage() {
         deviceName: getDeviceName(),
         redirect: false,
       });
-      if (result?.error === "DEVICE_LIMIT_EXCEEDED") {
-        toast.error("Device limit exceeded. Please contact admin to allow this device.");
-      } else if (result?.error) {
-        toast.error("Invalid email or password.");
-      } else {
+      // NextAuth v5: result can be undefined on success (session set via cookie)
+      if (!result || result.ok || !result.error) {
         router.push("/dashboard");
         router.refresh();
+        return;
       }
-    } catch {
-      toast.error("An error occurred. Please try again.");
+      if (result.error === "DEVICE_LIMIT_EXCEEDED") {
+        toast.error("Device limit exceeded. Contact admin.");
+      } else {
+        toast.error("Invalid email or password.");
+      }
+    } catch (err: any) {
+      // NextAuth v5 throws on auth errors in some versions
+      const msg = err?.message ?? err?.cause?.err?.message ?? "";
+      if (msg === "DEVICE_LIMIT_EXCEEDED") {
+        toast.error("Device limit exceeded. Contact admin.");
+      } else if (msg.includes("CredentialsSignin") || msg.includes("credentials")) {
+        toast.error("Invalid email or password.");
+      } else {
+        toast.error("Invalid email or password.");
+      }
     } finally {
       setLoading(false);
     }
@@ -117,9 +128,7 @@ export default function LoginPage() {
                 )}
               </Button>
             </form>
-            <p className="text-center text-xs text-blue-300 mt-6">
-              Default: admin@company.com / admin123
-            </p>
+
           </CardContent>
         </Card>
       </div>
